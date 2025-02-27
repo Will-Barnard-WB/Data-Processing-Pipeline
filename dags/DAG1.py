@@ -34,7 +34,7 @@ default_args = {
 with DAG(
     dag_id='dag_yfinance',
     default_args=default_args,
-    start_date=datetime(2025, 2, 17, 18, 6, 0),
+    start_date=datetime(2025, 2, 26, 10,33, 0),
     schedule_interval='* * * * *',  # Run every minute
     catchup = False
 ) as dag:
@@ -79,8 +79,21 @@ with DAG(
 
     )
 
+    task4 = SQLExecuteQueryOperator(
+        task_id='delete_oldest_stock_data',
+        conn_id='postgres_localhost',
+        sql = """
+            delete from stock_data
+            where dt in (
+                select dt from stock_data
+                where stock_symbol = 'AAPL'
+                order by dt desc
+                offset 10);
+         """
+    )
 
-    fetch_task >> task1 >> task2 >> task3
+
+    fetch_task >> task1 >> task2 >> task3  >> task4
 
 
 
