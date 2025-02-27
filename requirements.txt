@@ -1,1 +1,3 @@
+// Required python dependencies 
+
 yfinance==0.2.54
