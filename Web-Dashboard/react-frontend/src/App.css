@@ -2,80 +2,187 @@ body {
   font-family: 'Poppins', sans-serif;
   background: linear-gradient(135deg, #1e3c72, #2a5298);
   color: white;
-  text-align: center;
   margin: 0;
   padding: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  overflow: hidden;
+  min-height: 100vh;
 }
 
 .App {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(15px);
   border-radius: 20px;
   padding: 30px;
   box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.3);
-  width: 90%;
-  max-width: 850px;
+  width: 92%;
+  max-width: 1100px;
+  margin: 30px auto;
   animation: fadeIn 1s ease-in-out;
 }
 
 h1 {
-  font-size: 2.5rem;
-  margin-bottom: 20px;
+  font-size: 2rem;
+  margin-bottom: 6px;
   text-transform: uppercase;
   letter-spacing: 2px;
   animation: slideDown 1s ease-in-out;
+  text-align: center;
 }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 15px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 15px;
-  overflow: hidden;
+/* Status indicator */
+.status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: #ccc;
+  margin-bottom: 20px;
 }
 
-thead {
-  background: rgba(255, 255, 255, 0.3);
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.status-dot.connected {
+  background: #4fff9c;
+  box-shadow: 0 0 6px #4fff9c;
+}
+
+.status-dot.disconnected {
+  background: #ff5c5c;
+}
+
+/* Chart card */
+.chart-card {
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 14px;
+  padding: 18px 18px 10px;
+  margin-bottom: 20px;
+}
+
+.chart-title {
+  font-size: 1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #ddd;
+  margin: 0 0 14px 0;
+}
+
+/* Stats row */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 700px) {
+  .stats-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.stat-card {
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 14px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* RSI gauge */
+.rsi-value {
+  font-size: 2.4rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.rsi-label {
+  font-size: 0.85rem;
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 1px;
 }
 
-th, td {
-  padding: 15px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  text-align: center;
-}
-
-tr:hover {
+.rsi-bar-track {
+  position: relative;
+  height: 8px;
   background: rgba(255, 255, 255, 0.15);
-  transition: 0.4s ease-in-out;
-  transform: scale(1.02);
+  border-radius: 4px;
+  margin-top: 6px;
 }
 
+.rsi-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.4s ease;
+}
+
+.rsi-bar-marker {
+  position: absolute;
+  top: -3px;
+  width: 2px;
+  height: 14px;
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.rsi-bar-oversold {
+  left: 30%;
+}
+
+.rsi-bar-overbought {
+  left: 70%;
+}
+
+.rsi-bar-labels {
+  display: flex;
+  font-size: 0.7rem;
+  color: #aaa;
+  margin-top: 2px;
+}
+
+/* Prediction card */
+.pred-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pred-label {
+  font-size: 0.8rem;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.pred-value {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* Last close card */
+.big-stat {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.big-stat-sub {
+  font-size: 0.85rem;
+  color: #aaa;
+}
+
+/* Animations */
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-15px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(-15px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(-30px); }
+  to   { opacity: 1; transform: translateY(0); }
 }

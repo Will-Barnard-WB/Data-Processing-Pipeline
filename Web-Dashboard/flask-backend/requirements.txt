@@ -1,5 +1,6 @@
 flask
-psycopg2
+psycopg2-binary
 flask-cors
 flask-socketio
 eventlet
+kafka-python==2.0.2

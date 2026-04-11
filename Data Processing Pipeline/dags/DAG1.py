@@ -15,6 +15,24 @@ def get_stock_data(**kwargs):
     kwargs["ti"].xcom_push(key="current_close", value=current_close)
 
 
+def produce_to_kafka(**kwargs):
+    from kafka import KafkaProducer
+    import json
+    import os
+    ti = kwargs["ti"]
+    producer = KafkaProducer(
+        bootstrap_servers=os.environ.get("KAFKA_BOOTSTRAP_SERVERS", "kafka:9092"),
+        value_serializer=lambda v: json.dumps(v).encode(),
+    )
+    producer.send("stock-raw", {
+        "timestamp": kwargs["ts"],
+        "symbol": "AAPL",
+        "open_price": ti.xcom_pull(task_ids="fetch_stock_data", key="current_open"),
+        "close_price": ti.xcom_pull(task_ids="fetch_stock_data", key="current_close"),
+    })
+    producer.flush()
+
+
 default_args = {
     "owner": "admin",
     "retries": 5,
@@ -44,32 +62,18 @@ with DAG(
             "stock_symbol VARCHAR, "
             "open_price DOUBLE PRECISION, "
             "close_price DOUBLE PRECISION, "
+            "predicted_close DOUBLE PRECISION, "
+            "rsi_14 DOUBLE PRECISION, "
+            "ma_5 DOUBLE PRECISION, "
             "PRIMARY KEY (dt, stock_symbol)"
             ");"
         ),
     )
 
-    task2 = SQLExecuteQueryOperator(
-        task_id="delete_stock_data_from_table",
-        conn_id="postgres_localhost",
-        sql=(
-            "DELETE FROM stock_data "
-            "WHERE dt = '{{ts}}' AND stock_symbol = 'AAPL';"
-        ),
-    )
-
-    task3 = SQLExecuteQueryOperator(
-        task_id="fetch_and_store_apple_stock_data",
-        conn_id="postgres_localhost",
-        sql=(
-            "INSERT INTO stock_data (dt, stock_symbol, open_price, close_price) "
-            "VALUES ('{{ts}}', 'AAPL', "
-            "'{{ task_instance.xcom_pull(task_ids=\"fetch_stock_data\", "
-            "key=\"current_open\") }}', "
-            "'{{ task_instance.xcom_pull(task_ids=\"fetch_stock_data\", "
-            "key=\"current_close\") }}'"
-            ");"
-        ),
+    produce_task = PythonOperator(
+        task_id="produce_to_kafka",
+        python_callable=produce_to_kafka,
+        provide_context=True,
     )
 
     task4 = SQLExecuteQueryOperator(
@@ -85,4 +89,4 @@ with DAG(
         ),
     )
 
-    fetch_task >> task1 >> task2 >> task3 >> task4
+    fetch_task >> task1 >> produce_task >> task4
