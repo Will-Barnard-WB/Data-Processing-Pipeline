@@ -15,6 +15,7 @@ This project demonstrates an end-to-end data pipeline cycle including data extra
 - **Backend API:** Flask serves as the backend to expose APIs that read data from the PostgreSQL database.
 - **Frontend Dashboard:** React-based web dashboard visualizes the latest stock open and close prices for a selected ticker symbol (default: AAPL).
 - **Containerized Architecture:** The project runs two Docker containers — one for the data processing pipeline (Airflow, PostgreSQL) and one for the web dashboard (Flask API, React app) — enabling easy deployment and scalability.
+- **CI/CD Automation**: Basic GitHub Actions workflows automate testing, linting, and deployment of both backend and frontend services whenever changes are pushed to the repository.
 
 ---
 
@@ -26,6 +27,7 @@ This project demonstrates an end-to-end data pipeline cycle including data extra
 - **Frontend:** React.js
 - **Containerization:** Docker, Docker Compose
 - **Database GUI:** DBeaver
+- **CI/CD:** Github Actions
 
 ---
 
