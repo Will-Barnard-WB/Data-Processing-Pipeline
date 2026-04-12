@@ -1,0 +1,18 @@
+# React build output
+Web-Dashboard/react-frontend/build/
+Web-Dashboard/react-frontend/node_modules/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.env
+
+# Airflow logs
+Data Processing Pipeline/logs/
+
+# macOS
+.DS_Store
+
+# Docker
+*.log
