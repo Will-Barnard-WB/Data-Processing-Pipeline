@@ -1,6 +1,6 @@
 # Data Processing Pipeline and Web Dashboard
 
-A real-time data processing pipeline coupled with a responsive web dashboard that fetches, processes, and visualizes stock market data using the Yahoo Finance API.
+Deployed end-to-end real-time stock analytics platform on AWS EC2, integrating Apache Kafka, Apache Airflow, Python ML consumers and a React/Flask WebSocket dashboard — live at http://18.210.105.227:3030
 
 This project demonstrates an end-to-end data pipeline cycle including data extraction, transformation, storage, automation, and presentation using modern technologies.
 
