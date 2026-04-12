@@ -1,19 +1,22 @@
 version: '3.8'
 
 services:
-  # Backend service (Flask)
   webpage_docker:
     build:
       context: ./flask-backend
       dockerfile: Dockerfile
     container_name: webpage_docker
     ports:
-      - "5050:5000"
+      - "5050:5050"
     environment:
-      - FLASK_APP=app.py
-      - FLASK_RUN_HOST=0.0.0.0
+      DB_HOST: postgres
+      DB_NAME: postgres
+      DB_USER: airflow
+      DB_PASS: airflow
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    networks:
+      - stock_pipeline_network
 
-  # Frontend service (React)
   front_end:
     build:
       context: ./react-frontend
@@ -21,3 +24,9 @@ services:
     container_name: react-frontend
     ports:
       - "3030:3000"
+    networks:
+      - stock_pipeline_network
+
+networks:
+  stock_pipeline_network:
+    external: true

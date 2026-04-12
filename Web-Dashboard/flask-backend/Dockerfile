@@ -12,12 +12,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 
 
-# Expose port 5000 for the Flask app
-EXPOSE 5000
+# Expose port 5050 for the Flask/SocketIO app
+EXPOSE 5050
 
-# Define environment variables for database connection
-ENV FLASK_APP=app.py
-ENV FLASK_RUN_HOST=0.0.0.0
-
-# Run the application
-CMD ["flask", "run"]
+# Run via python so socketio.run() is used (flask run doesn't support SocketIO properly)
+CMD ["python", "app.py"]

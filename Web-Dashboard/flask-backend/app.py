@@ -7,7 +7,7 @@ from flask_socketio import SocketIO
 
 app = Flask(__name__)
 CORS(app)
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode="eventlet")
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
 
 DB_HOST = os.environ.get("DB_HOST", "postgres")
 DB_NAME = os.environ.get("DB_NAME", "postgres")
@@ -22,7 +22,7 @@ def get_db_connection():
             dbname=DB_NAME, user=DB_USER, password=DB_PASS, host=DB_HOST
         )
     except Exception as e:
-        print(f"Database connection error: {e}")
+        print(f"Database connection error: {e}", flush=True)
         return None
 
 
@@ -40,7 +40,7 @@ def kafka_listener():
                 auto_offset_reset="latest",
                 group_id="flask-socketio-group",
             )
-            print("Flask Kafka listener connected", flush=True)
+            print("Flask Kafka listener connected to stock-predictions", flush=True)
             for message in consumer:
                 data = message.value
                 payload = {
@@ -52,6 +52,7 @@ def kafka_listener():
                     "rsi_14": data.get("rsi_14"),
                     "ma_5": data.get("ma_5"),
                 }
+                print(f"Emitting stock_update: close={payload['close_price']}", flush=True)
                 socketio.emit("stock_update", payload)
         except NoBrokersAvailable:
             print("Kafka not available, retrying in 5s...", flush=True)
@@ -102,4 +103,4 @@ def get_stock_data():
 socketio.start_background_task(kafka_listener)
 
 if __name__ == "__main__":
-    socketio.run(app, debug=True, host="0.0.0.0", port=5050)
+    socketio.run(app, host="0.0.0.0", port=5050, allow_unsafe_werkzeug=True)

@@ -7,10 +7,13 @@ import yfinance as yf
 
 def get_stock_data(**kwargs):
     stock = yf.Ticker("AAPL")
-    data = stock.history(period="1d", interval="1m", prepost=True)
+    # Use 5d so weekends/holidays still return the most recent trading session
+    data = stock.history(period="5d", interval="1m", prepost=True)
+    if data.empty:
+        raise ValueError("yfinance returned no data — market may be closed")
     latest_data = data.iloc[-1]
-    current_open = latest_data["Open"]
-    current_close = latest_data["Close"]
+    current_open = float(latest_data["Open"])
+    current_close = float(latest_data["Close"])
     kwargs["ti"].xcom_push(key="current_open", value=current_open)
     kwargs["ti"].xcom_push(key="current_close", value=current_close)
 
