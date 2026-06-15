@@ -4,6 +4,8 @@
   consumers, persists results to PostgreSQL, and serves live analytics and ML price predictions to a React dashboard over WebSockets.
   Containerised with Docker and deployed on AWS EC2 with a GitHub Actions CI/CD pipeline.
 
+   **Live demo:** http://18.210.105.227:3030
+
   <img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/a0f5a9a1-f268-4b86-9686-507bce3bc8dc" /> 
   
   ## What it does
@@ -61,5 +63,6 @@
 
   ## Deployment
 
-  Deployed on AWS EC2 as a 10-service Docker stack. A GitHub Actions pipeline builds, lints, and auto-deploys to EC2 on every push.
+  Deployed on AWS EC2 as a 10-service Docker stack, live at http://18.210.105.227:3030. A GitHub Actions pipeline builds, lints, and
+  auto-deploys to EC2 on every push.
   
