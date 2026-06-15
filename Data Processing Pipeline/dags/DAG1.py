@@ -8,7 +8,7 @@ import yfinance as yf
 def get_stock_data(**kwargs):
     stock = yf.Ticker("AAPL")
     # Use 5d so weekends/holidays still return the most recent trading session
-    data = stock.history(period="5d", interval="1m", prepost=True)
+    data = stock.history(period="1d", interval="1m", prepost=True)
     if data.empty:
         raise ValueError("yfinance returned no data — market may be closed")
     latest_data = data.iloc[-1]
@@ -46,7 +46,7 @@ with DAG(
     dag_id="dag_yfinance",
     default_args=default_args,
     start_date=datetime(2025, 2, 26, 10, 33, 0),
-    schedule_interval="* * * * *",
+    schedule_interval="*/10 * * * *",
     catchup=False,
 ) as dag:
 
