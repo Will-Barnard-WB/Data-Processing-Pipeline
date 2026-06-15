@@ -1,72 +1,65 @@
-# Data Processing Pipeline and Web Dashboard
+# Real-Time Stock Analytics Pipeline
 
-Deployed end-to-end real-time stock analytics platform on AWS EC2, integrating Apache Kafka, Apache Airflow, Python ML consumers and a React/Flask WebSocket dashboard — live at http://18.210.105.227:3030
+  An end-to-end, event-driven data pipeline that ingests minute-level stock prices, streams them through Kafka to independent processing
+  consumers, persists results to PostgreSQL, and serves live analytics and ML price predictions to a React dashboard over WebSockets.
+  Containerised with Docker and deployed on AWS EC2 with a GitHub Actions CI/CD pipeline.
 
-This project demonstrates an end-to-end data pipeline cycle including data extraction, transformation, storage, automation, and presentation using modern technologies.
+  ![Live Dashboard]<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/a0f5a9a1-f268-4b86-9686-507bce3bc8dc" /> 
+  
+  ## What it does
 
----
+  A scheduled Airflow DAG fetches minute-level prices for a ticker (AAPL by default) and publishes them to Kafka. Two independent Python
+  consumers fan out from there — one computes live analytics and an ML price prediction, the other persists everything to PostgreSQL. A
+  Flask/Socket.IO backend streams the latest data to a React dashboard in real time.
 
-## Features
+  ```
+  Airflow DAG ──► Kafka: stock-raw ──► ml-consumer ──► Kafka: stock-predictions
+  (minute-level                        (RSI + regression                 │
+   yfinance)                            prediction)         ┌────────────┴────────────┐
+                                                            ▼                         ▼
+                                                  postgres-consumer           Flask + Socket.IO
+                                                       │                            │
+                                                       ▼                            ▼
+                                                  PostgreSQL              React dashboard (WebSocket)
+  ```
 
-- **Real-time Data Fetching:** Uses the [yfinance API](https://pypi.org/project/yfinance/) to retrieve up-to-date stock market data.
-- **Automated Workflow:** Apache Airflow orchestrates the data pipeline with DAG creation, scheduling, and logging.
-- **Data Storage:** Processed data is stored in a PostgreSQL database.
-- **Database Management:** View and manage database records using DBeaver.
-- **Backend API:** Flask serves as the backend to expose APIs that read data from the PostgreSQL database.
-- **Frontend Dashboard:** React-based web dashboard visualizes the latest stock open and close prices for a selected ticker symbol (default: AAPL).
-- **Containerized Architecture:** The project runs two Docker containers — one for the data processing pipeline (Airflow, PostgreSQL) and one for the web dashboard (Flask API, React app) — enabling easy deployment and scalability.
-- **CI/CD Automation**: Basic GitHub Actions workflows automate testing, linting, and deployment of both backend and frontend services whenever changes are pushed to the repository.
+  ## Architecture
 
----
+  - **Ingestion** — a scheduled Airflow DAG pulls minute-level prices via `yfinance` and produces them to the Kafka `stock-raw` topic.
+  - **Processing** — `ml-consumer` reads `stock-raw`, computes RSI(14), a 5-period moving average, and a regression-based next-close
+  prediction, then publishes to `stock-predictions`.
+  - **Persistence** — `postgres-consumer` reads `stock-predictions` and upserts into PostgreSQL (`ON CONFLICT` for safe re-runs).
+  - **Delivery** — a Flask + Socket.IO backend streams live updates to a React dashboard over WebSockets (price chart, RSI gauge, ML
+  prediction).
 
-## Technologies Used
+  ## Tech stack
 
-- **Data Extraction & Automation:** Apache Airflow, yfinance API
-- **Database:** PostgreSQL
-- **Backend:** Flask
-- **Frontend:** React.js
-- **Containerization:** Docker, Docker Compose
-- **Database GUI:** DBeaver
-- **CI/CD:** Github Actions
+  | Layer          | Technology                                    |
+  |----------------|-----------------------------------------------|
+  | Language       | Python (pipeline) · JavaScript (dashboard)    |
+  | Orchestration  | Apache Airflow                                |
+  | Streaming      | Apache Kafka + Zookeeper                       |
+  | Processing     | Python consumers (RSI, regression prediction) |
+  | Database       | PostgreSQL                                     |
+  | Backend / API  | Flask + Socket.IO                             |
+  | Frontend       | React                                          |
+  | Infra / CI-CD  | Docker Compose, AWS EC2, GitHub Actions       |
 
----
+  ## Running locally
 
-## Architecture Overview
+  ```bash
+  # 1) pipeline: Airflow + Kafka + Zookeeper + Postgres + consumers
+  cd "Data Processing Pipeline"
+  echo "AIRFLOW_UID=$(id -u)" > .env
+  docker-compose up -d --build
 
-1. **Data Extraction:** Airflow DAG fetches real-time stock prices using yfinance.
-2. **Data Storage:** The fetched data is cleaned and inserted into a PostgreSQL database.
-3. **Backend Service:** Flask API queries PostgreSQL for the latest stock data.
-4. **Frontend Dashboard:** React app fetches data from Flask API and displays recent open/close prices.
-5. **Automation & Logging:** Airflow manages the workflow scheduling and provides detailed logs.
+  # 2) dashboard: Flask + React
+  cd ../Web-Dashboard
+  docker-compose up -d --build  
+  ```
+  Open the dashboard at `http://localhost:3030`, then unpause the `dag_yfinance` DAG in the Airflow UI (`http://localhost:8080`).
 
----
+  ## Deployment
 
-## Visual Overview
-
-### React Web Dashboard  
-<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/a0f5a9a1-f268-4b86-9686-507bce3bc8dc" />
-
-
-### Apache Airflow DAG  
-![Apache Airflow DAG](https://github.com/user-attachments/assets/c5982452-8fee-4c52-a2ca-859ce2d54871)
-
-### Apache Airflow Run Log  
-![Apache Airflow Run Log](https://github.com/user-attachments/assets/aefc183f-7a58-4496-bfa4-9fc45bb0d889)
-
-### DBeaver PostgreSQL Connection  
-<img width="1470" alt="DBeaver PostgreSQL Connection" src="https://github.com/user-attachments/assets/317e05f8-8055-427d-abc8-b9bb4f838b47" />
-
-### Docker Container Desktop  
-<img width="1470" alt="Docker Container Desktop" src="https://github.com/user-attachments/assets/2070681f-07bd-4457-8f14-66becd7b9c2b" />
-
----
-
-## Future Improvements
-
-- Add support for multiple ticker symbols with dynamic input on the dashboard.
-- Implement data caching and optimized queries for faster response times.
-- Add more financial indicators and visualizations.
-- Enhance error handling and logging in the pipeline.
-- Integrate user authentication for personalized dashboards.
-
----
+  Deployed on AWS EC2 as a 10-service Docker stack. A GitHub Actions pipeline builds, lints, and auto-deploys to EC2 on every push.
+  
