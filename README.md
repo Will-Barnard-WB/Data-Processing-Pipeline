@@ -44,7 +44,8 @@ This project demonstrates an end-to-end data pipeline cycle including data extra
 ## Visual Overview
 
 ### React Web Dashboard  
-![React Web Dashboard](https://github.com/user-attachments/assets/e48518dd-25ac-46c2-b7c8-79f671aa1d28)
+<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/a0f5a9a1-f268-4b86-9686-507bce3bc8dc" />
+
 
 ### Apache Airflow DAG  
 ![Apache Airflow DAG](https://github.com/user-attachments/assets/c5982452-8fee-4c52-a2ca-859ce2d54871)
